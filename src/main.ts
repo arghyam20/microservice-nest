@@ -29,6 +29,11 @@ async function bootstrap() {
     .addTag('users', 'User management')
     .addTag('roles', 'Role management')
     .addTag('categories', 'Category management')
+    .addTag('restaurants', 'Restaurant management')
+    .addTag('menu-items', 'Restaurant menu management')
+    .addTag('cart', 'Shopping cart')
+    .addTag('orders', 'Food orders')
+    .addTag('payments', 'Order payments')
     .addBearerAuth(
       {
         type: 'http',
