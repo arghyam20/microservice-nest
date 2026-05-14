@@ -3,7 +3,6 @@ version: '3.8'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
-    hostname: zookeeper
     container_name: zookeeper
     ports:
       - "2181:2181"
@@ -13,33 +12,111 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.4.0
-    hostname: kafka
     container_name: kafka
-    depends_on:
-      - zookeeper
+    depends_on: [zookeeper]
     ports:
       - "9092:9092"
-      - "9101:9101"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      JMX_PORT: 9101
-      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka -Dcom.sun.management.jmxremote.rmi.port=9101
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
-    depends_on:
-      - kafka
+    depends_on: [kafka]
     ports:
       - "8080:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+
+  api-gateway:
+    build: ./services/api-gateway
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      KAFKA_BROKER: kafka:29092
+      JWT_SECRET: change-this-secret
+    depends_on: [kafka]
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: auth-service
+    environment:
+      KAFKA_BROKER: kafka:29092
+      DATABASE_PATH: data/auth.db
+      JWT_SECRET: change-this-secret
+      JWT_REFRESH_SECRET: change-this-refresh-secret
+    depends_on: [kafka]
+
+  user-service:
+    build: ./services/user-service
+    container_name: user-service
+    environment:
+      KAFKA_BROKER: kafka:29092
+      DATABASE_PATH: data/user.db
+    depends_on: [kafka]
+
+  restaurant-service:
+    build: ./services/restaurant-service
+    container_name: restaurant-service
+    environment:
+      KAFKA_BROKER: kafka:29092
+      DATABASE_PATH: data/restaurant.db
+    depends_on: [kafka]
+
+  menu-service:
+    build: ./services/menu-service
+    container_name: menu-service
+    environment:
+      KAFKA_BROKER: kafka:29092
+      DATABASE_PATH: data/menu.db
+    depends_on: [kafka]
+
+  cart-service:
+    build: ./services/cart-service
+    container_name: cart-service
+    environment:
+      KAFKA_BROKER: kafka:29092
+      DATABASE_PATH: data/cart.db
+    depends_on: [kafka]
+
+  order-service:
+    build: ./services/order-service
+    container_name: order-service
+    environment:
+      KAFKA_BROKER: kafka:29092
+      DATABASE_PATH: data/order.db
+    depends_on: [kafka]
+
+  payment-service:
+    build: ./services/payment-service
+    container_name: payment-service
+    environment:
+      KAFKA_BROKER: kafka:29092
+      DATABASE_PATH: data/payment.db
+    depends_on: [kafka]
+
+  notification-service:
+    build: ./services/notification-service
+    container_name: notification-service
+    environment:
+      KAFKA_BROKER: kafka:29092
+      DATABASE_PATH: data/notification.db
+    depends_on: [kafka]
+
+  delivery-service:
+    build: ./services/delivery-service
+    container_name: delivery-service
+    environment:
+      KAFKA_BROKER: kafka:29092
+      DATABASE_PATH: data/delivery.db
+    depends_on: [kafka]

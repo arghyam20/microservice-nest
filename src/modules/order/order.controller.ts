@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { GetCurrentUser } from '../../common/decorators/get-current-user.decorator';
@@ -45,8 +44,4 @@ export class OrderController {
     return this.orderService.updateStatus(id, updateOrderStatusDto);
   }
 
-  @MessagePattern('order.get')
-  handleGetOrder(data: { orderId: string }) {
-    return this.orderService.findOne(data.orderId);
-  }
 }

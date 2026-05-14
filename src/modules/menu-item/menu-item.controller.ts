@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -42,8 +41,4 @@ export class MenuItemController {
     return this.menuItemService.update(id, updateMenuItemDto);
   }
 
-  @MessagePattern('menu-item.get')
-  handleGetMenuItem(data: { menuItemId: string }) {
-    return this.menuItemService.findOne(data.menuItemId);
-  }
 }

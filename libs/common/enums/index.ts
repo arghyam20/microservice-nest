@@ -1,0 +1,55 @@
+export enum OrderStatus {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  PREPARING = 'PREPARING',
+  OUT_FOR_DELIVERY = 'OUT_FOR_DELIVERY',
+  DELIVERED = 'DELIVERED',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED',
+}
+
+export enum PaymentMethod {
+  CASH = 'CASH',
+  CARD = 'CARD',
+  UPI = 'UPI',
+  WALLET = 'WALLET',
+}
+
+export enum RestaurantStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  SUSPENDED = 'SUSPENDED',
+}
+
+export enum MenuItemStatus {
+  AVAILABLE = 'AVAILABLE',
+  UNAVAILABLE = 'UNAVAILABLE',
+}
+
+export enum CategoryStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}
+
+export enum DeliveryStatus {
+  ASSIGNED = 'ASSIGNED',
+  PICKED_UP = 'PICKED_UP',
+  IN_TRANSIT = 'IN_TRANSIT',
+  DELIVERED = 'DELIVERED',
+  FAILED = 'FAILED',
+}
+
+export enum NotificationType {
+  ORDER_PLACED = 'ORDER_PLACED',
+  ORDER_CONFIRMED = 'ORDER_CONFIRMED',
+  ORDER_OUT_FOR_DELIVERY = 'ORDER_OUT_FOR_DELIVERY',
+  ORDER_DELIVERED = 'ORDER_DELIVERED',
+  PAYMENT_SUCCESS = 'PAYMENT_SUCCESS',
+  PAYMENT_FAILED = 'PAYMENT_FAILED',
+}

@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -41,8 +40,4 @@ export class RestaurantController {
     return this.restaurantService.update(id, updateRestaurantDto);
   }
 
-  @MessagePattern('restaurant.get')
-  handleGetRestaurant(data: { restaurantId: string }) {
-    return this.restaurantService.findOne(data.restaurantId);
-  }
 }

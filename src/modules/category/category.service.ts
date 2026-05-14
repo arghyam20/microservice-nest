@@ -55,14 +55,4 @@ export class CategoryService {
     return this.categoryRepository.findOneBy({ id });
   }
 
-  // Message pattern handlers
-  async handleCategoryCreated(data: any) {
-    console.log('Category created event received:', data);
-    // Handle category created event from other services
-  }
-
-  async handleCategoryUpdated(data: any) {
-    console.log('Category updated event received:', data);
-    // Handle category updated event from other services
-  }
 }

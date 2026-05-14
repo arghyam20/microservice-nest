@@ -121,19 +121,4 @@ export class UserService {
     });
   }
 
-  // Message pattern for microservice communication
-  async handleUserCreated(data: any) {
-    console.log('User created event received:', data);
-    // Handle user created event from other services
-  }
-
-  async handleUserUpdated(data: any) {
-    console.log('User updated event received:', data);
-    // Handle user updated event from other services
-  }
-
-  async handleUserDeleted(data: any) {
-    console.log('User deleted event received:', data);
-    // Handle user deleted event from other services
-  }
 }

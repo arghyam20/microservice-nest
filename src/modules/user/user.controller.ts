@@ -1,5 +1,4 @@
 import { Controller, Get, Post, Body, Param, Query, Patch, Delete, UseGuards } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -97,29 +96,4 @@ export class UserController {
     return this.userService.remove(id);
   }
 
-  // Message patterns for microservice communication
-  @MessagePattern('user.get')
-  async handleGetUser(data: { userId: string }) {
-    return this.userService.findOneById(data.userId);
-  }
-
-  @MessagePattern('user.list')
-  async handleListUsers(data: PaginationDto) {
-    return this.userService.findAll(data);
-  }
-
-  @MessagePattern('user.created')
-  async handleUserCreated(data: any) {
-    return this.userService.handleUserCreated(data);
-  }
-
-  @MessagePattern('user.updated')
-  async handleUserUpdated(data: any) {
-    return this.userService.handleUserUpdated(data);
-  }
-
-  @MessagePattern('user.deleted')
-  async handleUserDeleted(data: any) {
-    return this.userService.handleUserDeleted(data);
-  }
 }

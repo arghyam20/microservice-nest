@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -38,8 +37,4 @@ export class PaymentController {
     return this.paymentService.updateStatus(id, updatePaymentStatusDto);
   }
 
-  @MessagePattern('payment.get')
-  handleGetPayment(data: { paymentId: string }) {
-    return this.paymentService.findOne(data.paymentId);
-  }
 }

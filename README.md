@@ -1,71 +1,114 @@
 # microservice-nest
 
-NestJS food ordering microservice scaffold with TypeORM, JWT access/refresh tokens, role/user/category modules, restaurant/menu/cart/order/payment modules, pagination, file upload, custom decorators, enums, API versioning, and Kafka integration for event-driven microservices.
+NestJS food ordering platform split into 10 independent microservices communicating via Kafka.
 
-## Setup
+## Architecture
 
-1. Copy `.env.example` to `.env`
-2. Start Kafka (optional, for full microservice testing):
-   ```bash
-   docker-compose up -d
-   ```
-   Kafka UI will be available at http://localhost:8080
-3. Run `npm install`
-4. Start the app with `npm run start:dev`
+```
+                        ┌─────────────────┐
+                        │   API Gateway   │  :3000 (HTTP + Swagger)
+                        │  /v1/* routes   │
+                        └────────┬────────┘
+                                 │ Kafka (send/receive)
+          ┌──────────────────────┼──────────────────────┐
+          │          │           │           │           │
+   ┌──────▼──┐ ┌─────▼───┐ ┌────▼────┐ ┌───▼────┐ ┌────▼────┐
+   │  Auth   │ │  User   │ │Restaurant│ │  Menu  │ │  Cart   │
+   │ Service │ │ Service │ │ Service  │ │Service │ │ Service │
+   └─────────┘ └─────────┘ └──────────┘ └────────┘ └─────────┘
+          │          │           │           │           │
+          └──────────┴───────────┴───────────┴───────────┘
+                                 │ Kafka (events)
+          ┌──────────────────────┼──────────────────────┐
+          │          │           │           │           │
+   ┌──────▼──┐ ┌─────▼───┐ ┌────▼────┐ ┌───▼──────────▼──┐
+   │  Order  │ │ Payment │ │Delivery │ │  Notification    │
+   │ Service │ │ Service │ │ Service │ │     Service      │
+   └─────────┘ └─────────┘ └─────────┘ └──────────────────┘
+```
 
-## API versioning
+## Services
 
-The API is versioned under `/v1`.
+| Service | Port | Kafka Group | Responsibility |
+|---|---|---|---|
+| api-gateway | 3000 | — | HTTP entry point, routes to all services |
+| auth-service | — | auth-service-group | JWT register/login/refresh/logout/validate |
+| user-service | — | user-service-group | User CRUD |
+| restaurant-service | — | restaurant-service-group | Restaurants + Categories |
+| menu-service | — | menu-service-group | Menu items |
+| cart-service | — | cart-service-group | Shopping cart |
+| order-service | — | order-service-group | Order creation + status |
+| payment-service | — | payment-service-group | Payment processing |
+| notification-service | — | notification-service-group | Email/SMS/push notifications |
+| delivery-service | — | delivery-service-group | Delivery tracking |
 
-## Microservices & Kafka
+## Kafka Topics
 
-This application is a hybrid NestJS app that supports both HTTP REST APIs and Kafka-based microservice communication.
+### Request-Reply (MessagePattern)
+- `auth.register` / `auth.login` / `auth.refresh` / `auth.logout` / `auth.validate.token`
+- `user.create` / `user.get` / `user.list` / `user.update` / `user.delete`
+- `restaurant.create` / `restaurant.get` / `restaurant.list` / `restaurant.update`
+- `category.create` / `category.get` / `category.list`
+- `menu-item.create` / `menu-item.get` / `menu-item.list` / `menu-item.update`
+- `cart.add-item` / `cart.get` / `cart.update-item` / `cart.remove-item` / `cart.clear`
+- `order.create` / `order.get` / `order.list` / `order.update-status`
+- `payment.create` / `payment.get` / `payment.list` / `payment.update-status`
+- `delivery.create` / `delivery.get` / `delivery.update-status`
+- `notification.send`
 
-### Kafka Events
-
-The application emits events to Kafka topics:
-- `user.created` - When a user is created
-- `user.updated` - When a user is updated
-- `user.deleted` - When a user is deleted
-- `category.created` - When a category is created
+### Fire-and-Forget (EventPattern)
+- `user.created` / `user.updated` / `user.deleted`
 - `restaurant.created` / `restaurant.updated`
+- `category.created`
 - `menu-item.created` / `menu-item.updated`
 - `order.created` / `order.status.updated`
 - `payment.created` / `payment.status.updated`
+- `delivery.status.updated`
 
-### Message Patterns
+## Event-Driven Flows
 
-The application listens to these message patterns:
-- `user.get` - Get user by ID
-- `user.list` - List users with pagination
-- `category.get` - Get category by ID
-- `category.list` - List categories with pagination
-- `restaurant.get` - Get restaurant by ID
-- `menu-item.get` - Get menu item by ID
-- `order.get` - Get order by ID
-- `payment.get` - Get payment by ID
-- `user.created`, `user.updated`, `user.deleted` - Handle user events
-- `category.created`, `category.updated` - Handle category events
+- `order.status.updated` → **delivery-service** auto-creates delivery when status = `CONFIRMED`
+- `order.created` → **notification-service** sends ORDER_PLACED notification
+- `order.status.updated` → **notification-service** sends status update notification
+- `payment.status.updated` → **notification-service** sends PAYMENT_SUCCESS/FAILED notification
 
-## Sample endpoints
+## Setup
+
+### Run with Docker (recommended)
+```bash
+docker-compose up -d
+```
+- API Gateway: http://localhost:3000/v1
+- Swagger UI: http://localhost:3000/api
+- Kafka UI: http://localhost:8080
+
+### Run individually (dev)
+Each service has its own `src/main.ts`. Copy `services/package.json.template` to each service folder as `package.json`, update the `name` field, then:
+```bash
+cd services/<service-name>
+npm install
+npm run start:dev
+```
+
+## API Endpoints (via Gateway)
 
 - `POST /v1/auth/register`
 - `POST /v1/auth/login`
 - `POST /v1/auth/refresh`
 - `POST /v1/auth/logout`
-- `GET /v1/users`
-- `POST /v1/users`
-- `GET /v1/roles`
-- `POST /v1/roles`
-- `GET /v1/categories`
-- `POST /v1/categories` (protected, accepts `image` file upload)
+- `GET /v1/users` (protected)
+- `POST /v1/users` (protected)
 - `GET /v1/restaurants`
 - `POST /v1/restaurants` (protected)
+- `GET /v1/categories`
+- `POST /v1/categories` (protected)
 - `GET /v1/menu-items?restaurantId=<id>`
 - `POST /v1/menu-items` (protected)
 - `GET /v1/cart` (protected)
 - `POST /v1/cart/items` (protected)
-- `POST /v1/orders` (protected, creates order from cart)
+- `POST /v1/orders` (protected)
 - `PATCH /v1/orders/:id/status` (protected)
 - `POST /v1/payments` (protected)
 - `PATCH /v1/payments/:id/status` (protected)
+- `GET /v1/delivery/:id` (protected)
+- `PATCH /v1/delivery/:id/status` (protected)

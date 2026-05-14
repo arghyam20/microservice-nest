@@ -1,5 +1,4 @@
 import { Controller, Post, UseGuards, UseInterceptors, UploadedFile, Body, Get, Query, Param } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery, ApiConsumes } from '@nestjs/swagger';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -65,24 +64,4 @@ export class CategoryController {
     return this.categoryService.findOne(id);
   }
 
-  // Message patterns for microservice communication
-  @MessagePattern('category.get')
-  async handleGetCategory(data: { categoryId: string }) {
-    return this.categoryService.findOne(data.categoryId);
-  }
-
-  @MessagePattern('category.list')
-  async handleListCategories(data: PaginationDto) {
-    return this.categoryService.findAll(data);
-  }
-
-  @MessagePattern('category.created')
-  async handleCategoryCreated(data: any) {
-    return this.categoryService.handleCategoryCreated(data);
-  }
-
-  @MessagePattern('category.updated')
-  async handleCategoryUpdated(data: any) {
-    return this.categoryService.handleCategoryUpdated(data);
-  }
 }
