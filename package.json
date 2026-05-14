@@ -6,8 +6,9 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "lint": "eslint \"src/**/*.ts\" --fix"
+    "check:services": "tsc -p tsconfig.services.json",
+    "format": "prettier --write \"src/**/*.ts\" \"services/**/*.ts\" \"libs/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" \"services/**/*.ts\" \"libs/**/*.ts\" --fix"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

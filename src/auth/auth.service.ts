@@ -1,10 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
-import { UserService } from '../modules/user/user.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { exists } from '../common/helpers/exists';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import * as bcrypt from "bcrypt";
+import { UserService } from "../modules/user/user.service";
+import { RegisterDto } from "./dto/register.dto";
+import { LoginDto } from "./dto/login.dto";
 
 @Injectable()
 export class AuthService {
@@ -16,7 +15,10 @@ export class AuthService {
   async register(registerDto: RegisterDto) {
     const user = await this.userService.create(registerDto);
     const tokens = this.getTokens(user.id, user.email, user.role?.name);
-    await this.userService.updateRefreshToken(user.id, await this.hashToken(tokens.refreshToken));
+    await this.userService.updateRefreshToken(
+      user.id,
+      await this.hashToken(tokens.refreshToken),
+    );
     return tokens;
   }
 
@@ -37,26 +39,35 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
     const tokens = this.getTokens(user.id, user.email, user.role?.name);
-    await this.userService.updateRefreshToken(user.id, await this.hashToken(tokens.refreshToken));
+    await this.userService.updateRefreshToken(
+      user.id,
+      await this.hashToken(tokens.refreshToken),
+    );
     return tokens;
   }
 
   async refreshTokens(userId: string, refreshToken: string) {
     const user = await this.userService.findOneById(userId);
     if (!user?.refreshToken) {
-      throw new UnauthorizedException('Refresh token not found');
+      throw new UnauthorizedException("Refresh token not found");
     }
 
-    const refreshMatches = await bcrypt.compare(refreshToken, user.refreshToken);
+    const refreshMatches = await bcrypt.compare(
+      refreshToken,
+      user.refreshToken,
+    );
     if (!refreshMatches) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException("Invalid refresh token");
     }
 
     const tokens = this.getTokens(user.id, user.email, user.role?.name);
-    await this.userService.updateRefreshToken(user.id, await this.hashToken(tokens.refreshToken));
+    await this.userService.updateRefreshToken(
+      user.id,
+      await this.hashToken(tokens.refreshToken),
+    );
     return tokens;
   }
 
@@ -69,8 +80,8 @@ export class AuthService {
     return {
       accessToken: this.jwtService.sign(payload),
       refreshToken: this.jwtService.sign(payload, {
-        secret: process.env.JWT_REFRESH_SECRET || 'change-this-refresh-secret',
-        expiresIn: process.env.JWT_REFRESH_EXPIRATION || '7d',
+        secret: process.env.JWT_REFRESH_SECRET || "change-this-refresh-secret",
+        expiresIn: process.env.JWT_REFRESH_EXPIRATION || "7d",
       }),
     };
   }

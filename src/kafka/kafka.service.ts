@@ -1,11 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { ClientKafka, ClientProxy } from '@nestjs/microservices';
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from "@nestjs/common";
+import { ClientProxy } from "@nestjs/microservices";
 
 @Injectable()
 export class KafkaService {
   constructor(
-    @Inject('KAFKA_CLIENT') private readonly kafkaClient: ClientProxy,
+    @Inject("KAFKA_CLIENT") private readonly kafkaClient: ClientProxy,
   ) {}
 
   async emit(pattern: string, data: any) {
