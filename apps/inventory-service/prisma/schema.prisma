@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("INVENTORY_DATABASE_URL")
+}
+
+model InventoryItem {
+  id               Int      @id @default(autoincrement())
+  uuid             String   @unique @default(uuid()) @db.VarChar(36)
+  productId        String   @db.VarChar(36)
+  vendorId         String   @db.VarChar(36)
+  businessId       String?  @db.VarChar(36)
+  availableQuantity Int     @default(0)
+  reservedQuantity  Int     @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  reservations InventoryReservation[]
+
+  @@index([productId])
+  @@index([vendorId])
+}
+
+model InventoryReservation {
+  id              Int      @id @default(autoincrement())
+  uuid            String   @unique @default(uuid()) @db.VarChar(36)
+  inventoryItemId Int
+  bookingId       String   @db.VarChar(36)
+  quantity        Int
+  status          String   @default("RESERVED") @db.VarChar(32)
+  expiresAt       DateTime?
+  releasedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
+
+  @@unique([bookingId, inventoryItemId])
+}

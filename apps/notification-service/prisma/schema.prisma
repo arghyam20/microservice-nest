@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("NOTIFICATION_DATABASE_URL")
+}
+
+model NotificationTemplate {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid()) @db.VarChar(36)
+  key       String   @unique @db.VarChar(128)
+  channel   String   @db.VarChar(32)
+  subject   String?  @db.VarChar(255)
+  body      String   @db.LongText
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NotificationDelivery {
+  id            Int      @id @default(autoincrement())
+  uuid          String   @unique @default(uuid()) @db.VarChar(36)
+  eventId       String   @db.VarChar(64)
+  receiverUserId String? @db.VarChar(36)
+  channel       String   @db.VarChar(32)
+  status        String   @default("PENDING") @db.VarChar(32)
+  retryCount    Int      @default(0)
+  payload       Json?
+  errorMessage  String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([eventId, channel, receiverUserId])
+}
